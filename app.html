@@ -1,0 +1,177 @@
+
+<!DOCTYPE html>
+<html ng-app="myApp">
+
+<head>
+<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.5.5/angular.min.js"></script>
+	<script src="http://cdnjs.cloudflare.com/ajax/libs/annyang/2.2.1/annyang.min.js"></script>
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.0/jquery.min.js"></script>
+  <script src="http://code.responsivevoice.org/responsivevoice.js"></script>
+  <link rel="stylesheet" type="text/css" href="css/main.css">>
+	<script>
+    if (annyang) {
+  // Let's define our first command. First the text we expect, and then the function it should call
+  var hue_bedroom = 1
+  var hue_livingroom= 2
+  var wink_livingroom = 5088581
+  var wink_bedroom = 5088582
+  var wink_desktop = 5211365
+  var wink_tv = 5290940
+
+  function setWinkLights(lightList, trueOrFalse){
+    for (var i = lightList.length - 1; i >= 0; i--) {
+      $.ajax({
+        url: 'https://api.wink.com/groups/' + lightList[i] + '/activate',
+        type: 'POST',
+        dataType: 'json',
+        headers: {"Authorization": "Bearer 09a29d0ba7f54fbdd24b40e2dcc9f008"},
+        data: {"desired_state":{"powered":trueOrFalse}} // or $('#myform').serializeArray()
+      });
+      console.log(lightList[i]);
+    }
+  }
+
+  function setHueLights(group, onOrOff){
+    $.ajax({
+      url: 'http://192.168.2.25/api/newdeveloper/groups/0/action',
+      type: 'PUT',
+        data: '{"on":' + onOrOff + '}' // or $('#myform').serializeArray()
+      });
+  }
+
+  var commands = {
+  	'turn on (the) *lights': function(lights) {
+      switch(lights){
+        case "lights":
+        $.ajax({
+          url: 'https://api.wink.com/scenes/2830403/activate',
+          type: 'POST',
+          dataType: 'json',
+          headers: {"Authorization": "Bearer 09a29d0ba7f54fbdd24b40e2dcc9f008"},
+        });
+        break;
+
+        case "living room lights":
+        setHueLights(hue_livingroom, 'on');
+        setWinkLights([wink_livingroom, wink_tv, wink_desktop], true);
+        break;
+
+        case "bedroom light":
+        setHueLights(hue_bedroom, 'on');
+        setWinkLights([wink_bedroom], true);
+        break;
+
+        case "bedroom lights":
+        setHueLights(hue_bedroom, 'on');
+        setWinkLights([wink_bedroom], true);
+        break;
+
+        default:
+        $.ajax({
+          url: 'https://api.wink.com/scenes/2830403/activate',
+          type: 'POST',
+          dataType: 'json',
+          headers: {"Authorization": "Bearer 09a29d0ba7f54fbdd24b40e2dcc9f008"},
+        });
+      }
+
+      responsiveVoice.speak("Oui", "French Female");
+
+    },
+
+    'turn (the) *lights off': function(lights) {
+      switch(lights){
+        case "lights":
+        $.ajax({
+          url: 'https://api.wink.com/scenes/2836722/activate',
+          type: 'POST',
+          dataType: 'json',
+          headers: {"Authorization": "Bearer 09a29d0ba7f54fbdd24b40e2dcc9f008"},
+        });
+        break;
+
+        case "living room lights":
+        setHueLights(hue_livingroom, 'off');
+        setWinkLights([wink_livingroom,wink_tv,wink_desktop], false);
+        break;
+
+        case "bedroom light":
+        setHueLights(hue_bedroom, 'off');
+        setWinkLights([wink_bedroom], false);
+        break;
+
+        case "bedroom lights":
+        setHueLights(hue_bedroom, 'off');
+        setWinkLights([wink_bedroom], false);
+        break;
+
+        default:
+        $.ajax({
+          url: 'https://api.wink.com/scenes/2836722/activate',
+          type: 'POST',
+          dataType: 'json',
+          headers: {"Authorization": "Bearer 09a29d0ba7f54fbdd24b40e2dcc9f008"},
+        });
+      }
+
+            responsiveVoice.speak("Oui", "French Female");
+
+
+    },
+
+    'theater mode': function(){
+
+      $.ajax({
+        url: 'https://api.wink.com/scenes/2938987/activate',
+        type: 'POST',
+        dataType: 'json',
+        headers: {"Authorization": "Bearer 09a29d0ba7f54fbdd24b40e2dcc9f008"},
+      });
+
+            responsiveVoice.speak("Oui", "French Female");
+
+    },
+
+    'change (the) color to *hue': function(hue) {
+      switch(hue) {
+        case 'Red':
+        color = 0;
+        break;
+        case 'Blue':
+        color = 46920;
+        break;
+        case 'Yellow':
+        color = 12750;
+        break;
+        case 'Green':
+        color = 25500;
+        break;
+        default:
+        color = 0
+      };
+
+      $.ajax({
+       url: 'http://192.168.2.25/api/newdeveloper/groups/0/action',
+       type: 'PUT',
+    		data: '{"hue":'+color+'}' // or $('#myform').serializeArray()
+      });
+    }
+  };
+
+  // Add our commands to annyang
+  annyang.addCommands(commands);
+
+  // Start listening. You can call this here, or attach this call to an event, button, etc.
+  annyang.debug(true);
+  annyang.start();
+}
+</script>
+</head>
+<body>
+<div ng-controller="dataController">
+  <p >Living room state: {{ refreshState() }}</p>
+</div>
+
+<script src="js/main.js"></script>
+</body>
+</html>

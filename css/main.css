@@ -1,0 +1,15 @@
+@font-face {
+  font-family: "HelveticaNeue-UltraLight";
+  src: url("../fonts/HelveticaNeue-UltraLight.ttf");
+}
+html{
+        background-color:black;
+}
+
+p{
+        text-align:center;
+        color:white;
+	font-family:'HelveticaNeue-UltraLight';
+	font-size:100px;
+}
+
